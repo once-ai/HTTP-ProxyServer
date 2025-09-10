@@ -49,6 +49,7 @@
    HTTP有两类报文，请求报文和响应报文。客户端向服务器发送请求报文，从服务器到客户端的回答为响应报文。
 
    <img width="1270" height="440" alt="HTTP请求报文" src="https://github.com/user-attachments/assets/d43fbcc8-6f72-47d8-8371-43ad0b590410" />
+   
    可以得到HTTP请求报文的起始行结构如表所示
 
    <table>
@@ -68,6 +69,7 @@
    VERSION表示报文使用的HTTP协议版本号。
 
    <img width="1266" height="393" alt="HTTP响应报文" src="https://github.com/user-attachments/assets/958cb09c-7dde-4094-91f3-f5063df61ab4" />
+   
    可以得到HTTP响应报文的起始行结果如表所示
 
    <table>
@@ -124,7 +126,9 @@
    #### 3.4.1 HTTP请求解析
 
    目标：从获取到的客户端的HTTP请求报文中提取请求方法（GET或POST）、目标URL和目标Host字段，为后面访问控制和请求转发提供依据。
+   
    实现方法：由HTTP请求报文的起始行结构，检查前几个字符是否为“GET”或者“POST”；再定位第一个空格后的字符，一直到第二个空格前的内容即为URL；定位Host字段，只要搜索“Host： ”字符串，提取后面直到换行符的内容，就是Host字段的内容。
+   
    关键代码：
 
    ```c
@@ -167,7 +171,9 @@
    #### 3.4.2 获取客户端IP
 
    目标：验证客户端IP是否与设定的客户端IP一致。
+   
    实现方法：先使用getpeername()函数获取与client_socket关联的客户端地址结构体；然后调用inet_ntop()将获得的客户端地址结构体struct sockaddr_in中的IPv4地址从二进制形式转换为点分十进制字符串的形式。
+   
    关键代码：
 
    ```c
@@ -180,7 +186,9 @@ inet_ntop(AF_INET, &client_addr.sin_addr, client_ip, INET_ADDRSTRLEN);
    #### 3.4.3 解析目标主机名
 
    目标：将解析得到的HTTP请求中的目标Host字段解析为IP地址，用于建立代理服务器与目标服务器的连接。
+   
    实现方法：调用gethostbyname()函数，通过DNS查询获取目标主机的IP地址列表，选取返回的IP地址列表中的第一个有效地址。
+   
    关键代码：
 
    ```c
@@ -196,6 +204,7 @@ memcpy(&server_addr.sin_addr, host_entry->h_addr_list[0], host_entry->h_length);
    #### 3.4.4 访问控制策略
 
    目标：只有当客户端IP地址与设定的客户端IP地址一致，并且请求服务器与设定的服务器域名或IP地址不一致时，该应用代理防火墙才提供代理服务。
+   
    实现代码：
 
    ```c
@@ -212,6 +221,7 @@ else
    #### 3.4.5 双向数据转发
 
    目标：实现客户端与目标服务器间的请求与响应实时转发。
+   
    关键代码：
 
    ```c
@@ -244,42 +254,62 @@ while ((bytes = recv(server_socket, buffer, BUFFER_SIZE, 0)) > 0)
    #### 4.2.1 火狐浏览器设置代理 127.0.0.1:8888（代理服务器程序未运行）
    
    手动设置代理服务器，IP地址为127.0.0.1，端口设为8888，与程序中监听端口保持一致
+   
    <img width="828" height="727" alt="代理服务器设置" src="https://github.com/user-attachments/assets/bf86faa5-8f6d-4ea2-b8ae-c832b1ae6903" />
    
    （1）访问设定的服务器域名 www.baidu.com
+   
    <img width="895" height="674" alt="访问域名" src="https://github.com/user-attachments/assets/ea3ebb09-f6fe-4abe-a1d9-239b6ce5ef2a" />
+   
    <img width="1287" height="398" alt="访问域名时的流量" src="https://github.com/user-attachments/assets/d0db0c28-d9af-4809-810d-3c36d583e959" />
+   
    （2）访问其他服务器域名（如 www.csdn.net）
-   ![访问域名www.csdn.net]("C:\Users\aixia\Desktop\Github\访问域名csdn.png")
-
-   ![访问域名www.csdn.net时的流量]("C:\Users\aixia\Desktop\Github\访问域名csdn时的流量.png")
-
+   
+   <img width="882" height="628" alt="访问域名csdn" src="https://github.com/user-attachments/assets/279799fe-bf03-474e-8cbd-b8ca9886d46c" />
+   
+   <img width="1290" height="215" alt="访问域名csdn时的流量" src="https://github.com/user-attachments/assets/d3e840fd-20c7-4865-b61c-cc8dc55e059f" />
+  
    由（1）、（2）中的结果可以发现，在未运行代理服务器程序前，客户端无法访问网址。分析访问域名时的流量，客户端访问网址时，客户端向代理服务器端口8888发送SYN包，尝试通过此端口建立TCP连接，但是端口8888返回了RST数据包，拒绝了连接请求，从而无法访问网站。
    所以，代理服务器未运行，客户端（浏览器）无法通过127.0.0.1：8888建立TCP连接，进而无法访问目标网站。
 
    #### 4.2.2 运行代理服务器程序
 
-   ![运行代理服务器程序]("C:\Users\aixia\Desktop\Github\运行代理服务器程序.png")
+   运行代理服务器程序
    （1）访问设定的服务器域名 www.baidu.com
-   ![访问域名www.baidu.com时程序显示结果]("C:\Users\aixia\Desktop\Github\访问域名时程序的运行结果.png")
-   ![客户端访问域名www.baidu.com]("C:\Users\aixia\Desktop\Github\客户端访问域名.png")
+   
+   <img width="781" height="238" alt="访问域名时程序的运行结果" src="https://github.com/user-attachments/assets/431fbd74-fb9a-41c8-94f5-a9ca0ecb0980" />
+   
+   <img width="904" height="320" alt="客户端访问域名" src="https://github.com/user-attachments/assets/ab3338ca-db4d-4652-9c5b-86cd8094c04a" />
+   
    可以看到，虽然客户端的IP地址与设定的客户端IP地址一致，但是由于客户端请求访问的服务器域名与设定的服务器域名一致，所以代理服务器拒绝提供代理服务，客户端无法访问网站www.baidu.com。
-   ![访问域名www.baidu.com时的流量]("C:\Users\aixia\Desktop\Github\访问域名时的流量2.png")
+   
+   <img width="1278" height="277" alt="访问域名时的流量2" src="https://github.com/user-attachments/assets/110bed65-1c1f-47b4-94c2-1ec3f46c68cd" />
+   
    分析流量情况，客户端与代理服务器之间的连接成功，TCP三次握手成功，说明代理服务器在运行并成功建立了连接，但目标Host和设定的服务器域名一致，所以代理拒绝转发请求，拒绝提供代理服务，代理服务器返回403 Forbidden后，客户端发送FIN-ACK终止连接。
    （2）访问其他服务器域名（如 www.csdn.net）
-   ![访问域名www.csdn.net时程序显示结果]()
-   ![客户端访问域名www.csdn.net]
+   
+   <img width="624" height="136" alt="访问域名csdn时程序的显示结果" src="https://github.com/user-attachments/assets/97288d36-3447-4c63-a85a-7265588f92e3" />
+   
+   <img width="900" height="420" alt="客户端访问域名csdn" src="https://github.com/user-attachments/assets/ca477203-97e9-452a-844b-f6dcf2933b07" />
+   
    可以看到，当客户端的IP地址与设定的客户端IP地址一致，且客户端请求访问的服务器域名与设定的服务器域名不一致时，代理服务器提供代理服务，客户端成功访问网站www.csdn.net。
-   ![访问域名www.csdn.net时的流量]
+   
+   <img width="1271" height="332" alt="访问域名csdn时的流量2" src="https://github.com/user-attachments/assets/2821054f-5e63-4be1-94ca-1a822b6d02ba" />
+   
    分析流量情况，客户端与代理服务器之间的连接成功，TCP三次握手成功，说明代理服务器在运行并成功建立了连接，且目标Host和设定的服务器域名不一致，所以代理服务器提供代理服务，之后数据包14显示代理服务器返回了301重定向，这可能是因为目标服务器有重定向。表现了代理服务器正确转发了请求和响应，客户端最终成功访问了网站。
 
    #### 4.2.3 验证功能“如果客户端的IP不是设定的IP 127.0.0.1的话，就不提供代理”
 
    修改代码，将代理服务器中设定的允许的客户端IP从127.0.0.1修改为127.0.0.2，然后重新运行代理服务器程序，客户端127.0.0.1访问网站www.csdn.net，结果如下：
-   ![访问域名www.csdn.net时程序显示结果]()
-   ![客户端访问域名www.csdn.net]()
+   
+   <img width="628" height="129" alt="修改后访问域名csdn时程序的显示结果" src="https://github.com/user-attachments/assets/b1451922-52b8-4449-8f49-37d2e733b736" />
+   
+   <img width="699" height="262" alt="修改后客户端访问域名csdn" src="https://github.com/user-attachments/assets/d74c2e72-1b14-4271-b3c7-c1fd15c92670" />
+   
    可以看到，客户端的IP地址与设定的客户端IP地址不一致，即使客户端请求访问的服务器域名与设定的服务器域名不一致，代理服务器也拒绝提供代理服务，客户端无法访问网站www.csdn.net。
-   ![访问域名www.csdn.net时的流量]()
+   
+   <img width="1282" height="210" alt="修改后访问域名csdn时的流量" src="https://github.com/user-attachments/assets/64e375f1-0ef3-4e8c-8b42-d7ec8bc8b40a" />
+   
    分析流量情况，客户端与代理服务器之间的连接成功，TCP三次握手成功，说明代理服务器在运行并成功建立了连接，当客户端发起HTTP请求时，由于客户端IP与设定的客户端IP不一致，所以拒绝提供代理服务，代理服务器返回403 Forbidden后，客户端发送FIN-ACK终止连接。
 
 ***
