@@ -47,10 +47,8 @@
    ### 3.1 HTTP报文结构
 
    HTTP有两类报文，请求报文和响应报文。客户端向服务器发送请求报文，从服务器到客户端的回答为响应报文。
-
-   <img width="1270" height="440" alt="HTTP请求报文" src="https://github.com/user-attachments/assets/d43fbcc8-6f72-47d8-8371-43ad0b590410" />
    
-   可以得到HTTP请求报文的起始行结构如表所示
+   HTTP请求报文的起始行结构如表所示
 
    <table>
     <tr>
@@ -67,10 +65,8 @@
    METHOD表示请求方法，如GET/POST/HEAD/PUT等，是对资源的操作，其中GET和POST是最常用的两个方法，本系统中暂时只考虑了这两种方法。
    URL表示请求方法要操作的资源，也是俗称的“网址”。
    VERSION表示报文使用的HTTP协议版本号。
-
-   <img width="1266" height="393" alt="HTTP响应报文" src="https://github.com/user-attachments/assets/958cb09c-7dde-4094-91f3-f5063df61ab4" />
    
-   可以得到HTTP响应报文的起始行结果如表所示
+   HTTP响应报文的起始行结果如表所示
 
    <table>
     <tr>
